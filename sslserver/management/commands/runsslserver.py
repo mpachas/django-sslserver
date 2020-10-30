@@ -12,6 +12,14 @@ from django.core.management.commands import runserver
 from django.contrib.staticfiles.handlers import StaticFilesHandler
 from django import get_version
 
+if  (sys.version_info[0] > 3) or \
+    (sys.version_info[0] == 3 and sys.version_info[1] >= 6) or \
+    (sys.version_info[0] == 3 and sys.version_info[1] == 5 and sys.version_info[2] >= 3) or \
+    (sys.version_info[0] == 2 and sys.version_info[1] == 7 and sys.version_info[2] >= 13):
+    _ssl_version = ssl.PROTOCOL_TLS
+else:
+    _ssl_version = ssl.PROTOCOL_SSLv23
+
 try:
     from django.core.servers.basehttp import WSGIServerException
 except ImportError:
@@ -27,7 +35,7 @@ class SecureHTTPServer(WSGIServer):
         super(SecureHTTPServer, self).__init__(address, handler_cls)
         self.socket = ssl.wrap_socket(self.socket, certfile=certificate,
                                       keyfile=key, server_side=True,
-                                      ssl_version=ssl.PROTOCOL_TLSv1,
+                                      ssl_version=_ssl_version,
                                       cert_reqs=ssl.CERT_NONE)
 
 
